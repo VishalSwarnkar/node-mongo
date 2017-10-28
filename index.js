@@ -9,26 +9,25 @@ MongoClient.connect(url, (err, db) => {
 
     console.log('Connected correctly to server');
 
-    const collection = db.collection("dishes");
-    collection.insertOne({"name": "Vishal", "description": "test"},
-    (err, result) => {
-        assert.equal(err,null);
+    const collection = db.collection('dishes');
+    collection.insertOne({"name":"vishal","discription":"test"}, (err, result) => {
+      assert.equal(err, null);
 
-        console.log("After Insert:\n");
-        console.log(result.ops);
+      console.log("After Insert :\n");
+      console.log(result.ops);
 
-        collection.find({}).toArray((err, docs) => {
-            assert.equal(err,null);
+      collection.find({}).toArray((err, docs) =>{
+        assert.equal(err, null)
 
-            console.log("Found:\n");
-            console.log(docs);
+        console.log("Found :\n");
+        console.log(docs);
 
-            db.dropCollection("dishes", (err, result) => {
-                assert.equal(err,null);
-
-                db.close();
-            });
+        db.dropCollection("dishes", (err, result) =>{
+          assert.equal(err, null)
+          db.close();
         });
-    });
+
+      })
+    })
 
 });

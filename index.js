@@ -1,38 +1,71 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+const mongoose = require('mongoose');
+
 const url = 'mongodb://localhost:27017/confusion';
 
-const dboper=require('./operation');
+const connect = mongoose.connect(url);
 
-MongoClient.connect(url).then((db) => {
-  console.log('Connected to the server');
+const Dishes = require('./models/dishes');
 
-  dboper.inserDocument(db, { name: "another", description:"testing"}, "dishes")
-  .then((result) => {
-    console.log("Insert document :\n", result.ops);
+// connect.then((db)=>{
 
-    return dboper.findDocuments(db, "dishes");
+//   var newDish = Dishes({
+//     name: "Idli Wada",
+//     description: "South Indian dishes"
+//   })
+
+//   newDish.save()
+//   .then((dish)=>{
+//     console.log(dish);
+//     return Dishes.find({})
+//   }).then((result)=>{
+//     console.log("Dishesh ", result);
+//     return Dishes.updateOne({"name": "Idli Wada"}, { "description": "Updated Test" });
+//   }).then((result)=>{
+//     console.log("Find the dishes ", result._id);
+//     return Dishes.find({})
+//   }).then((result)=>{
+//     console.log("Updated the dishes ", result);
+//     // return Dishes.remove({})
+//     return Dishes.deleteMany({})
+//   }).then(()=>{
+//     mongoose.connection.close();
+//     // db.close();
+//   }).catch((err)=>{
+//     console.log(err);
+//   })
+// })
+
+connect.then(()=>{
+  Dishes.create({
+    name: 'Uthapizza',
+    description: 'Test'
   })
-  .then((docs) => {
-      console.log("Found Documents:\n", docs);
-
-      return dboper.updateDocument(db, {name: "Sample"}, {description: "Update test"}, "dishes");
-
-  }).then((result) =>{
-        console.log("Updated document:\n", result.result);
-
-        return dboper.findDocuments(db, "dishes")
+  .then((dish)=>{
+    console.log(dish);
+    return Dishes.findByIdAndUpdate(dish._id, {
+      $set: {description: "South Indian Dish"}
+    }, {new: true}).exec();
   })
-  .then((docs) => {
-          console.log("Found updated Documents:\n", docs);
-
-       return db.dropCollection("dishes");
+  .then((dishes)=>{
+    console.log(dishes);
+    dishes.comments.push({
+      rating: 4,
+      comment: "Nice food",
+      author: "Vishal"
+    });
+    return dishes.save();
   })
-  .then((result) => {
-            console.log("Droped all Collection: ", result);
-        return db.close();
+  .then((dishes)=>{
+    console.log(dishes);
+    return Dishes.deleteMany({})
   })
-  .catch((error)=>console.log(error));
+  .then(()=>{
+    // db.close();
+    mongoose.connection.close();
+  })
+  .catch((err)=>{
+    console.log(err);
+  })
+})
 
-},(error) => console.log(error))
-.catch((error)=>console.log(error));
+
